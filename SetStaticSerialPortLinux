@@ -1,0 +1,72 @@
+
+****** set static name for serial port in linux********
+
+
+Steps:
+
+1 - show device serial port information. Enter this command in Terminal: 
+udevadm info --name=/dev/ttyUSB0 --attribute-walk
+
+* Replace ttyUSB0 with the device serial port name.
+
+
+-------------------------------------------------------------------------------
+2 - in the information shown, move to the part 4 of it which contains data like this:
+looking at parent device '/devices/3530000.xhci/usb1/1-2/1-2.3':
+    KERNELS=="1-2.3"
+    SUBSYSTEMS=="usb"
+    DRIVERS=="usb"
+    ATTRS{authorized}=="1"
+    ATTRS{avoid_reset_quirk}=="0"
+    ATTRS{bConfigurationValue}=="1"
+    ATTRS{bDeviceClass}=="ff"
+    ATTRS{bDeviceProtocol}=="00"
+    ATTRS{bDeviceSubClass}=="00"
+    ATTRS{bMaxPacketSize0}=="8"
+    ATTRS{bMaxPower}=="98mA"
+    ATTRS{bNumConfigurations}=="1"
+    ATTRS{bNumInterfaces}==" 1"
+    ATTRS{bcdDevice}=="0263"
+    ATTRS{bmAttributes}=="80"
+    ATTRS{busnum}=="1"
+    ATTRS{configuration}==""
+    ATTRS{devnum}=="5"
+    ATTRS{devpath}=="2.3"
+    ATTRS{idProduct}=="7523"
+    ATTRS{idVendor}=="1a86"
+    ATTRS{ltm_capable}=="no"
+    ATTRS{maxchild}=="0"
+    ATTRS{product}=="USB2.0-Serial"
+    ATTRS{quirks}=="0x0"
+    ATTRS{removable}=="unknown"
+    ATTRS{speed}=="12"
+    ATTRS{urbnum}=="48025"
+    ATTRS{version}==" 1.10"
+
+
+* Catch some data which are:
+KERNELS=="1-2.3"
+ATTRS{bcdDevice}=="0263"
+ATTRS{idVendor}=="1a86"
+ATTRS{idProduct}=="7523"
+
+-------------------------------------------------------------------------------
+3 - open /etc/udev/rules.d/99-usb-serial.rules file using any text editor (e.g. gedit , nano) . Enter this command in Terminal:
+sudo gedit /etc/udev/rules.d/99-usb-serial.rules
+
+*Then add this line in the file:
+SUBSYSTEM=="tty", SUBSYSTEMS=="usb", KERNELS=="1-2.3",ATTRS{bcdDevice}=="0263",ATTRS{idVendor}=="1a86",ATTRS{idProduct}=="7523" , SYMLINK+="mydev0";
+
+*Change the data given from the previous step.
+*Replace mydev0 with wanted serial port name.
+
+-------------------------------------------------------------------------------
+4 - Load the new rule. Enter this command in Terminal:
+sudo udevadm trigger
+-----------------------------------------------------------------------------
+5- Check the new device serial port name. Enter this command in Terminal:
+ls -l /dev/mydev0
+*Replace mydev0 with selected serial port name in the previous step.
+
+
+Happy Programming,,,
